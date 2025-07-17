@@ -16,7 +16,7 @@ const updateTime = document.getElementById('update-time');
 const popularRates = document.getElementById('popular-rates');
 
 // 常用货币列表
-const popularCurrencies = ['USD', 'EUR', 'GBP', 'JPY', 'CNY', 'AUD', 'CAD', 'CHF', 'HKD', 'SGD'];
+const popularCurrencies = ['EUR', 'GBP', 'JPY', 'HKD', 'MOP', 'TWD','RUB', 'ARS', 'TRY', 'MXN','BRL','EGP','KRW','INR','UAH'];
 
 // 初始化应用
 async function initApp() {
@@ -69,36 +69,13 @@ async function fetchCurrencyNames() {
     try {
         // 这里使用一个静态的货币名称列表，实际应用中可以从API获取
         currencies = {
-            "USD": "美元",
-            "EUR": "欧元",
-            "GBP": "英镑",
-            "JPY": "日元",
-            "CNY": "人民币",
-            "AUD": "澳大利亚元",
-            "CAD": "加拿大元",
-            "CHF": "瑞士法郎",
-            "HKD": "港币",
-            "SGD": "新加坡元",
-            "NZD": "新西兰元",
-            "INR": "印度卢比",
-            "BRL": "巴西雷亚尔",
-            "RUB": "俄罗斯卢布",
-            "KRW": "韩元",
-            "IDR": "印尼盾",
-            "TRY": "土耳其里拉",
-            "SAR": "沙特里亚尔",
-            "SEK": "瑞典克朗",
-            "NOK": "挪威克朗",
-            "DKK": "丹麦克朗",
-            "PLN": "波兰兹罗提",
-            "THB": "泰铢",
-            "MXN": "墨西哥比索",
-            "ZAR": "南非兰特",
-            "MYR": "马来西亚林吉特",
-            "PHP": "菲律宾比索",
-            "TWD": "新台币",
-            "CZK": "捷克克朗",
-            "ILS": "以色列新谢克尔"
+            "USD": "美元", "EUR": "欧元", "GBP": "英镑", "JPY": "日元", "CNY": "人民币", "AUD": "澳大利亚元",
+            "CAD": "加拿大元", "CHF": "瑞士法郎", "HKD": "港币", "SGD": "新加坡元", "NZD": "新西兰元",
+            "INR": "印度卢比", "BRL": "巴西雷亚尔", "RUB": "俄罗斯卢布", "KRW": "韩元", "IDR": "印尼盾",
+            "TRY": "土耳其里拉", "SAR": "沙特里亚尔", "SEK": "瑞典克朗", "NOK": "挪威克朗", "DKK": "丹麦克朗",
+            "PLN": "波兰兹罗提", "THB": "泰铢", "MXN": "墨西哥比索", "ZAR": "南非兰特", "MYR": "马来西亚林吉特",
+            "PHP": "菲律宾比索", "TWD": "新台币", "CZK": "捷克克朗", "UAH": "乌克兰格里夫纳", "EGP": "埃及镑",
+            "ARS": "阿根廷比索", "NGN": "尼日利亚奈拉", "MOP": "澳门元", "ILS": "以色列新谢克尔"
         };
         
         // 对于API返回的但不在我们列表中的货币，添加代码作为名称
@@ -143,18 +120,24 @@ function populateCurrencySelects() {
 // 设置事件监听器
 function setupEventListeners() {
     // 当输入金额、源货币或目标货币改变时转换货币
-    amountInput.addEventListener('input', convertCurrency);
+    amountInput.addEventListener('input', () => {
+        convertCurrency();
+        displayPopularRates();
+    });
     fromCurrencySelect.addEventListener('change', () => {
         convertCurrency();
         updateRateInfo();
+        displayPopularRates();
     });
     toCurrencySelect.addEventListener('change', () => {
         convertCurrency();
         updateRateInfo();
     });
-    
     // 交换货币按钮
-    swapButton.addEventListener('click', swapCurrencies);
+    swapButton.addEventListener('click', () => {
+        swapCurrencies();
+        displayPopularRates();
+    });
 }
 
 // 转换货币
@@ -230,43 +213,36 @@ function swapCurrencies() {
     toCurrencySelect.value = tempCurrency;
     
     convertCurrency();
+    displayPopularRates();
 }
 
-// 显示常用汇率
+// 显示常用货币金额换算为人民币
 function displayPopularRates() {
     // 清空现有内容
     popularRates.innerHTML = '';
-    
-    // 获取基准货币
-    const fromCurrency = fromCurrencySelect.value;
-    const fromRate = exchangeRates[fromCurrency];
-    
-    if (!fromRate) return;
-    
+    const amount = parseFloat(amountInput.value);
+    if (isNaN(amount) || amount <= 0) return;
+    // 目标是人民币
+    const toRate = exchangeRates['CNY'];
     // 显示常用货币的汇率
     popularCurrencies.forEach(currencyCode => {
-        if (currencyCode !== fromCurrency && exchangeRates[currencyCode]) {
-            const rate = exchangeRates[currencyCode] / fromRate;
-            const currencyName = currencies[currencyCode] || currencyCode;
-            
+        const currencyRate = exchangeRates[currencyCode];
+        if (currencyRate) {
+            const result = (amount / currencyRate) * toRate;
             const rateCard = document.createElement('div');
             rateCard.className = 'rate-card';
             rateCard.innerHTML = `
                 <div class="currency-code">
-                    <span>${currencyCode}</span>
-                    <span>${formatCurrencyValue(rate)}</span>
+                    <span>${amount} ${currencyCode} </span>
+					<span>=</span>
+                    <span>${formatCurrencyValue(result)} CNY</span>
                 </div>
-                <div class="currency-name">${currencyName}</div>
-                <div class="rate-value">1 ${fromCurrency} = ${formatCurrencyValue(rate)} ${currencyCode}</div>
+                <div class="currency-name">${currencies[currencyCode]}</div>
             `;
-            
             popularRates.appendChild(rateCard);
         }
     });
 }
-
-// 当源货币改变时，更新常用汇率显示
-fromCurrencySelect.addEventListener('change', displayPopularRates);
 
 // 启动应用
 document.addEventListener('DOMContentLoaded', initApp);
