@@ -13,7 +13,7 @@
 
 ## 在线访问
 
-访问[实时汇率计算器](https://zhengjianhong001.github.io/currency-converter/)体验这个工具。
+访问[实时汇率计算器](https://luchenhao.github.io/currency-converter/)体验这个工具。
 
 ## 技术栈
 
@@ -26,7 +26,7 @@
 
 1. 克隆仓库：
    ```
-   git clone https://github.com/zhengjianhong001/currency-converter.git
+   git clone https://github.com/luchenhao/currency-converter.git
    ```
 
 2. 在浏览器中打开`index.html`文件
